@@ -41,8 +41,8 @@ function ConnectAccounts({ onAccountConnected }) {
     
     try {
       // Start OAuth flow
-      const response = await fetch(`/api/auth/${platform.id}/connect`, {
-        method: 'POST',
+      const response = await fetch(`/.netlify/functions/oauth/connect?platform=${platform.id}`, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json'
         }

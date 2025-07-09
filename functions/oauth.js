@@ -11,27 +11,28 @@ exports.handler = async (event, context) => {
   }
 
   const { platform } = event.queryStringParameters || {};
-  const action = event.path.split('/').pop();
+  const pathSegments = event.path.split('/');
+  const action = pathSegments[pathSegments.length - 1];
 
   try {
-    if (action === 'connect') {
+    if (action === 'connect' || event.path.includes('connect')) {
       // Generate OAuth URLs for different platforms
       const oauthConfigs = {
         facebook: {
-          authUrl: `https://www.facebook.com/v18.0/dialog/oauth?client_id=${process.env.FACEBOOK_APP_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}/facebook&scope=pages_show_list,pages_read_engagement,pages_read_user_content&response_type=code&state=facebook`,
+          authUrl: `https://www.facebook.com/v18.0/dialog/oauth?client_id=${process.env.FACEBOOK_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://socialsignt.netlify.app/.netlify/functions/oauth')}&scope=pages_show_list,pages_read_engagement,pages_read_user_content&response_type=code&state=facebook`,
           scopes: ['pages_show_list', 'pages_read_engagement', 'pages_read_user_content']
         },
         instagram: {
-          authUrl: `https://api.instagram.com/oauth/authorize?client_id=${process.env.INSTAGRAM_APP_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}/instagram&scope=user_profile,user_media&response_type=code&state=instagram`,
+          authUrl: `https://api.instagram.com/oauth/authorize?client_id=${process.env.INSTAGRAM_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://socialsignt.netlify.app/.netlify/functions/oauth')}&scope=user_profile,user_media&response_type=code&state=instagram`,
           scopes: ['user_profile', 'user_media']
         },
         twitter: {
-          authUrl: `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.TWITTER_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}/twitter&scope=tweet.read%20users.read%20follows.read&state=twitter&code_challenge=challenge&code_challenge_method=plain`,
+          authUrl: `https://twitter.com/i/oauth2/authorize?response_type=code&client_id=${process.env.TWITTER_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://socialsignt.netlify.app/.netlify/functions/oauth')}&scope=tweet.read%20users.read%20follows.read&state=twitter&code_challenge=challenge&code_challenge_method=plain`,
           scopes: ['tweet.read', 'users.read', 'follows.read']
         },
         linkedin: {
-          authUrl: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}/linkedin&scope=r_organization_social%20r_ads%20r_ads_reporting&state=linkedin`,
-          scopes: ['r_organization_social', 'r_ads', 'r_ads_reporting']
+          authUrl: `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent('https://socialsignt.netlify.app/.netlify/functions/oauth')}&scope=r_liteprofile%20r_emailaddress&state=linkedin`,
+          scopes: ['r_liteprofile', 'r_emailaddress']
         }
       };
 
@@ -54,7 +55,7 @@ exports.handler = async (event, context) => {
       };
     }
 
-    if (action === 'callback') {
+    if (action === 'callback' || event.queryStringParameters?.code) {
       // Handle OAuth callback
       const { code, state } = event.queryStringParameters || {};
       
@@ -72,7 +73,7 @@ exports.handler = async (event, context) => {
 
       switch (state) {
         case 'facebook':
-          tokenResponse = await fetch(`https://graph.facebook.com/v18.0/oauth/access_token?client_id=${process.env.FACEBOOK_APP_ID}&client_secret=${process.env.FACEBOOK_APP_SECRET}&redirect_uri=${encodeURIComponent(process.env.REDIRECT_URI)}/facebook&code=${code}`);
+          tokenResponse = await fetch(`https://graph.facebook.com/v18.0/oauth/access_token?client_id=${process.env.FACEBOOK_CLIENT_ID}&client_secret=${process.env.FACEBOOK_CLIENT_SECRET}&redirect_uri=${encodeURIComponent('https://socialsignt.netlify.app/.netlify/functions/oauth')}&code=${code}`);
           const fbTokenData = await tokenResponse.json();
           
           if (fbTokenData.access_token) {
@@ -83,10 +84,10 @@ exports.handler = async (event, context) => {
 
         case 'instagram':
           const igFormData = new FormData();
-          igFormData.append('client_id', process.env.INSTAGRAM_APP_ID);
-          igFormData.append('client_secret', process.env.INSTAGRAM_APP_SECRET);
+          igFormData.append('client_id', process.env.INSTAGRAM_CLIENT_ID);
+          igFormData.append('client_secret', process.env.INSTAGRAM_CLIENT_SECRET);
           igFormData.append('grant_type', 'authorization_code');
-          igFormData.append('redirect_uri', `${process.env.REDIRECT_URI}/instagram`);
+          igFormData.append('redirect_uri', 'https://socialsignt.netlify.app/.netlify/functions/oauth');
           igFormData.append('code', code);
 
           tokenResponse = await fetch('https://api.instagram.com/oauth/access_token', {
@@ -106,7 +107,7 @@ exports.handler = async (event, context) => {
             grant_type: 'authorization_code',
             client_id: process.env.TWITTER_CLIENT_ID,
             code: code,
-            redirect_uri: `${process.env.REDIRECT_URI}/twitter`,
+            redirect_uri: 'https://socialsignt.netlify.app/.netlify/functions/oauth',
             code_verifier: 'challenge'
           };
 
@@ -137,7 +138,7 @@ exports.handler = async (event, context) => {
             code: code,
             client_id: process.env.LINKEDIN_CLIENT_ID,
             client_secret: process.env.LINKEDIN_CLIENT_SECRET,
-            redirect_uri: `${process.env.REDIRECT_URI}/linkedin`
+            redirect_uri: 'https://socialsignt.netlify.app/.netlify/functions/oauth'
           };
 
           tokenResponse = await fetch('https://www.linkedin.com/oauth/v2/accessToken', {
