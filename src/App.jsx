@@ -4,42 +4,17 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-import WelcomePage from './pages/WelcomePage';
-import ConnectAccounts from './components/ConnectAccounts';
 import { useSocialMetrics } from './apiHooks/useSocialMetrics';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [hasConnections, setHasConnections] = useState(false);
   const { metrics, loading, error, refreshMetrics } = useSocialMetrics();
-
-  useEffect(() => {
-    // Check if user has any connected accounts
-    const savedConnections = localStorage.getItem('socialConnections');
-    if (savedConnections) {
-      const connections = JSON.parse(savedConnections);
-      const hasAnyConnection = Object.values(connections).some(connected => connected);
-      setHasConnections(hasAnyConnection);
-    }
-  }, []);
 
   useEffect(() => {
     // Refresh metrics every 5 minutes
     const interval = setInterval(refreshMetrics, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [refreshMetrics]);
-
-  // Show welcome page if no connections
-  if (!hasConnections) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<Welcome />} />
-        </Routes>
-      </Router>
-    );
-  }
 
   return (
     <Router>

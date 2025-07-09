@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Save, Key, Bell, Database, Globe } from 'lucide-react';
 import ConnectAccounts from '../components/ConnectAccounts';
-import EasyConnect from '../components/EasyConnect';
 
 function Settings() {
   const [activeTab, setActiveTab] = useState('api');
@@ -83,7 +82,9 @@ function Settings() {
                   Connect your social media accounts using secure OAuth authentication. You'll login directly on each platform's official website.
                 </p>
                 
-                <EasyConnect />
+                <ConnectAccounts onAccountConnected={(platform, data) => {
+                  console.log(`Connected ${platform}:`, data);
+                }} />
                 
                 <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                   <h4 className="text-sm font-medium text-yellow-800 mb-2">Advanced: Manual API Configuration</h4>
