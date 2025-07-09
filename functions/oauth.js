@@ -16,6 +16,25 @@ exports.handler = async (event, context) => {
 
   try {
     if (action === 'connect' || event.path.includes('connect')) {
+      // Check for required environment variables
+      const envVars = {
+        facebook: process.env.FACEBOOK_CLIENT_ID,
+        instagram: process.env.INSTAGRAM_CLIENT_ID,
+        twitter: process.env.TWITTER_CLIENT_ID,
+        linkedin: process.env.LINKEDIN_CLIENT_ID
+      };
+
+      if (!envVars[platform]) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ 
+            error: `${platform.toUpperCase()}_CLIENT_ID environment variable is not set`,
+            debug: `Available env vars: ${Object.keys(process.env).filter(k => k.includes('CLIENT')).join(', ')}`
+          })
+        };
+      }
+
       // Generate OAuth URLs for different platforms
       const oauthConfigs = {
         facebook: {
@@ -175,22 +194,48 @@ exports.handler = async (event, context) => {
           <head>
             <title>Account Connected Successfully</title>
             <style>
-              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+              body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #f8fafc; }
               .success { color: #10b981; font-size: 24px; margin-bottom: 20px; }
               .info { color: #6b7280; margin-bottom: 30px; }
+              .close-btn { 
+                background: #10b981; 
+                color: white; 
+                border: none; 
+                padding: 10px 20px; 
+                border-radius: 5px; 
+                cursor: pointer; 
+                font-size: 16px;
+              }
             </style>
           </head>
           <body>
-            <div class="success">✅ Account Connected Successfully!</div>
-            <div class="info">You can close this window now.</div>
+            <div class="success">✅ ${state.charAt(0).toUpperCase() + state.slice(1)} Connected Successfully!</div>
+            <div class="info">
+              Connected as: <strong>${userData?.username || userData?.name || userData?.firstName || 'User'}</strong><br>
+              This window will close automatically.
+            </div>
+            <button class="close-btn" onclick="closeWindow()">Close Now</button>
             <script>
-              window.opener.postMessage({
-                type: 'OAUTH_SUCCESS',
-                platform: '${state}',
-                username: '${userData?.username || userData?.name || userData?.firstName}',
-                userId: '${userData?.id}'
-              }, window.location.origin);
-              setTimeout(() => window.close(), 2000);
+              function closeWindow() {
+                try {
+                  if (window.opener) {
+                    window.opener.postMessage({
+                      type: 'OAUTH_SUCCESS',
+                      platform: '${state}',
+                      username: '${userData?.username || userData?.name || userData?.firstName || 'User'}',
+                      userId: '${userData?.id}'
+                    }, '*');
+                  }
+                } catch (e) {
+                  console.log('Error posting message:', e);
+                }
+                window.close();
+              }
+              
+              // Auto-close after sending message
+              setTimeout(() => {
+                closeWindow();
+              }, 1000);
             </script>
           </body>
         </html>

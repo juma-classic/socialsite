@@ -18,10 +18,10 @@ const platforms = [
   },
   {
     id: 'twitter',
-    name: 'Twitter',
+    name: 'X (Twitter)',
     icon: Twitter,
-    color: 'bg-blue-400 hover:bg-blue-500',
-    description: 'Connect your Twitter account to track tweets and engagement'
+    color: 'bg-black hover:bg-gray-800',
+    description: 'Connect your X (Twitter) account to track posts and engagement'
   },
   {
     id: 'linkedin',
@@ -48,6 +48,13 @@ function ConnectAccounts({ onAccountConnected }) {
         }
       });
       
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('OAuth setup error:', errorData);
+        alert(`Failed to setup OAuth for ${platform.name}: ${errorData.error || 'Unknown error'}`);
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.authUrl) {
@@ -60,7 +67,8 @@ function ConnectAccounts({ onAccountConnected }) {
         
         // Listen for OAuth completion
         const handleMessage = (event) => {
-          if (event.origin !== window.location.origin) return;
+          // Allow messages from any origin for OAuth popups
+          console.log('Received message:', event.data);
           
           if (event.data.type === 'OAUTH_SUCCESS' && event.data.platform === platform.id) {
             setConnectedAccounts(prev => ({
@@ -72,13 +80,19 @@ function ConnectAccounts({ onAccountConnected }) {
               }
             }));
             
-            popup.close();
+            if (popup && !popup.closed) {
+              popup.close();
+            }
             window.removeEventListener('message', handleMessage);
             onAccountConnected?.(platform.id, event.data);
+            setConnectingAccount(null);
           } else if (event.data.type === 'OAUTH_ERROR') {
             console.error('OAuth error:', event.data.error);
-            popup.close();
+            if (popup && !popup.closed) {
+              popup.close();
+            }
             window.removeEventListener('message', handleMessage);
+            setConnectingAccount(null);
           }
         };
         
@@ -86,14 +100,16 @@ function ConnectAccounts({ onAccountConnected }) {
         
         // Check if popup was closed manually
         const checkClosed = setInterval(() => {
-          if (popup.closed) {
+          if (popup && popup.closed) {
             clearInterval(checkClosed);
             window.removeEventListener('message', handleMessage);
+            setConnectingAccount(null);
           }
         }, 1000);
       }
     } catch (error) {
       console.error('Connection error:', error);
+      alert(`Failed to connect ${platform.name}: ${error.message}`);
     } finally {
       setConnectingAccount(null);
     }
