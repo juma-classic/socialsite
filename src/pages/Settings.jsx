@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Save, Key, Bell, Database, Globe } from 'lucide-react';
+import ConnectAccounts from '../components/ConnectAccounts';
 import EasyConnect from '../components/EasyConnect';
 
 function Settings() {

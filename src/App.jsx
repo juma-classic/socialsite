@@ -4,7 +4,8 @@ import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-import Welcome from './pages/Welcome';
+import WelcomePage from './pages/WelcomePage';
+import ConnectAccounts from './components/ConnectAccounts';
 import { useSocialMetrics } from './apiHooks/useSocialMetrics';
 
 function App() {
