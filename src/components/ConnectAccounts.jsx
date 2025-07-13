@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Facebook, Instagram, Twitter, Linkedin, CheckCircle, AlertCircle } from 'lucide-react';
+import socialMediaService from '../services/socialMediaService';
 
 const platforms = [
   {
@@ -35,6 +36,34 @@ const platforms = [
 function ConnectAccounts({ onAccountConnected }) {
   const [connectedAccounts, setConnectedAccounts] = useState({});
   const [connectingAccount, setConnectingAccount] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Load connected accounts on mount
+  useEffect(() => {
+    loadConnectedAccoun
+  }, []);
+
+  const loadConnectedAccounts = async () => {
+    try {
+      const accounts = await socialMediaService.getConnectedAccounts();
+      const accountsMap = {};
+      
+      accounts.forEach(account => {
+        accountsMap[account.platform] = {
+          connected: true,
+          username: account.username,
+          connectedAt: account.connected_at,
+          platformUserId: account.platform_user_id
+        };
+      });
+      
+      setConnectedAccounts(accountsMap);
+    } catch (error) {
+      console.error('Error loading connected accounts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleConnect = async (platform) => {
     setConnectingAccount(platform.id);
@@ -66,19 +95,13 @@ function ConnectAccounts({ onAccountConnected }) {
         );
         
         // Listen for OAuth completion
-        const handleMessage = (event) => {
+        const handleMessage = async (event) => {
           // Allow messages from any origin for OAuth popups
           console.log('Received message:', event.data);
           
           if (event.data.type === 'OAUTH_SUCCESS' && event.data.platform === platform.id) {
-            setConnectedAccounts(prev => ({
-              ...prev,
-              [platform.id]: {
-                connected: true,
-                username: event.data.username,
-                connectedAt: new Date().toISOString()
-              }
-            }));
+            // Reload connected accounts from database
+            await loadConnectedAccounts();
             
             if (popup && !popup.closed) {
               popup.close();
@@ -115,12 +138,18 @@ function ConnectAccounts({ onAccountConnected }) {
     }
   };
 
-  const handleDisconnect = (platformId) => {
-    setConnectedAccounts(prev => {
-      const updated = { ...prev };
-      delete updated[platformId];
-      return updated;
-    });
+  const handleDisconnect = async (platformId) => {
+    try {
+      await socialMediaService.disconnectAccount(platformId);
+      setConnectedAccounts(prev => {
+        const updated = { ...prev };
+        delete updated[platformId];
+        return updated;
+      });
+    } catch (error) {
+      console.error('Error disconnecting account:', error);
+      alert(`Failed to disconnect ${platformId}: ${error.message}`);
+    }
   };
 
   return (

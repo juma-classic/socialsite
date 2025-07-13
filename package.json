@@ -9,22 +9,29 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
-  "keywords": ["social-media", "dashboard", "analytics", "react", "netlify"],
+  "keywords": [
+    "social-media",
+    "dashboard",
+    "analytics",
+    "react",
+    "netlify"
+  ],
   "author": "Your Name",
   "license": "MIT",
   "dependencies": {
+    "@supabase/supabase-js": "^2.50.5",
+    "axios": "^1.3.0",
+    "lucide-react": "^0.263.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.30.1",
     "react-scripts": "5.0.1",
-    "react-router-dom": "^6.8.0",
-    "recharts": "^2.5.0",
-    "axios": "^1.3.0",
-    "lucide-react": "^0.263.1"
+    "recharts": "^2.5.0"
   },
   "devDependencies": {
-    "tailwindcss": "^3.2.0",
     "autoprefixer": "^10.4.0",
-    "postcss": "^8.4.0"
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.2.0"
   },
   "browserslist": {
     "production": [

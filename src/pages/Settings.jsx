@@ -22,7 +22,7 @@ function Settings() {
   });
 
   const tabs = [
-    { id: 'api', name: 'API Keys', icon: Key },
+    { id: 'api', name: 'Connect Account', icon: Key },
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'data', name: 'Data & Storage', icon: Database },
     { id: 'general', name: 'General', icon: Globe },

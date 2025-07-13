@@ -9,12 +9,18 @@ import {
   Twitter, 
   Linkedin,
   X,
-  ChevronRight
+  ChevronRight,
+  FileText,
+  MessageCircle,
+  User
 } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
+  { name: 'Posts', href: '/posts', icon: FileText },
+  { name: 'Messages', href: '/messages', icon: MessageCircle },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Profile', href: '/profile', icon: User },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

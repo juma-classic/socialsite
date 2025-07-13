@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
-import Posts from './pages/Posts';
-import Messages from './pages/Messages';
-import Profile from './pages/Profile';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { useSocialMetrics } from './apiHooks/useSocialMetrics';
-import { LogOut, User } from 'lucide-react';
 
 function App() {
   return (
@@ -35,9 +31,6 @@ function App() {
 
 function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
   const { metrics, loading, error, refreshMetrics } = useSocialMetrics();
 
   useEffect(() => {
@@ -45,27 +38,6 @@ function AppLayout() {
     const interval = setInterval(refreshMetrics, 5 * 60 * 1000);
     return () => clearInterval(interval);
   }, [refreshMetrics]);
-
-  // Close user menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showUserMenu && !event.target.closest('.user-menu')) {
-        setShowUserMenu(false);
-      }
-    };
-    
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [showUserMenu]);
-
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -126,38 +98,10 @@ function AppLayout() {
                   </svg>
                 </button>
                 
-                {/* User Menu */}
-                <div className="relative user-menu">
-                  <button
-                    type="button"
-                    className="flex items-center space-x-2 p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    onClick={() => setShowUserMenu(!showUserMenu)}
-                  >
-                    <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5 text-gray-600" />
-                    </div>
-                    <span className="hidden sm:block text-sm font-medium">
-                      {user?.user_metadata?.fullName || user?.email?.split('@')[0] || 'User'}
-                    </span>
-                  </button>
-                  
-                  {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200">
-                      <div className="px-4 py-2 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">
-                          {user?.user_metadata?.fullName || 'User'}
-                        </p>
-                        <p className="text-sm text-gray-500">{user?.email}</p>
-                      </div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign out</span>
-                      </button>
-                    </div>
-                  )}
+                <div className="h-8 w-8 bg-gray-300 rounded-full flex items-center justify-center">
+                  <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </div>
               </div>
             </div>
@@ -167,10 +111,7 @@ function AppLayout() {
         <main className="flex-1 overflow-y-auto bg-gray-50">
           <Routes>
             <Route path="/" element={<Dashboard metrics={metrics} loading={loading} error={error} />} />
-            <Route path="/posts" element={<Posts />} />
-            <Route path="/messages" element={<Messages />} />
             <Route path="/analytics" element={<Analytics metrics={metrics} loading={loading} error={error} />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
