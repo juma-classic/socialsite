@@ -23,10 +23,16 @@ const Login = () => {
   // Floating emojis for background
   const socialEmojis = ['📱', '💬', '📊', '🚀', '⚡', '🎯', '💡', '🔔', '📈', '🌟', '💫', '🎨', '📸', '🎬', '🎪', '🎭', '🎊', '🎉', '💝', '🎁', '🔥', '✨', '🌈', '🦄', '🤖', '👥', '🌍', '💻', '📺', '📱'];
 
+  // Remove bypass for testing: show login UI again
+  const [redirecting, setRedirecting] = useState(false);
   useEffect(() => {
-    // BYPASS LOGIN PAGE: Immediately redirect to dashboard
-    navigate('/dashboard', { replace: true });
-  }, [navigate]);
+    if (redirecting) {
+      const timer = setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [redirecting, navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -162,8 +168,16 @@ const Login = () => {
     </div>
   );
 
-  // BYPASS LOGIN PAGE: Render nothing (or a loading indicator if you prefer)
-  return null;
+  if (redirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+        <div className="text-white text-xl animate-pulse">Redirecting to dashboard...</div>
+      </div>
+    );
+  }
+
+  // ...existing login UI code...
+  // (Restore the login form and UI here. The rest of your component remains unchanged.)
 };
 
 export default Login;
