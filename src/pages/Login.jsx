@@ -28,7 +28,7 @@ const Login = () => {
   useEffect(() => {
     if (redirecting) {
       const timer = setTimeout(() => {
-        navigate('/dashboard', { replace: true });
+        navigate('/app', { replace: true });
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -103,12 +103,9 @@ const Login = () => {
           });
         }
       } else {
-        // DEVELOPMENT OVERRIDE: Allow any email/password to log in
         setSuccess('Login successful! Redirecting...');
-        // Set a dummy user in localStorage to simulate login for useAuth
-        localStorage.setItem('devUser', JSON.stringify({ email: formData.email }));
         setTimeout(() => {
-          navigate('/dashboard', { replace: true });
+          navigate('/app', { replace: true });
         }, 500);
       }
     } catch (err) {
