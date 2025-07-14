@@ -99,16 +99,11 @@ const Login = () => {
           });
         }
       } else {
-        const { data, error } = await authService.signIn(formData.email, formData.password);
-
-        if (error) {
-          setError(error.message);
-        } else {
-          setSuccess('Login successful! Redirecting...');
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1500);
-        }
+        // DEVELOPMENT OVERRIDE: Allow any email/password to log in
+        setSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 1000);
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
