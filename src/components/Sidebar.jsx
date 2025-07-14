@@ -16,12 +16,12 @@ import {
 } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'Posts', href: '/posts', icon: FileText },
-  { name: 'Messages', href: '/messages', icon: MessageCircle },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Dashboard', href: '/app', icon: Home },
+  { name: 'Posts', href: '/app/posts', icon: FileText },
+  { name: 'Messages', href: '/app/messages', icon: MessageCircle },
+  { name: 'Analytics', href: '/app/analytics', icon: BarChart3 },
+  { name: 'Profile', href: '/app/profile', icon: User },
+  { name: 'Settings', href: '/app/settings', icon: Settings },
 ];
 
 const socialPlatforms = [
