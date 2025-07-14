@@ -24,6 +24,18 @@ export const AuthProvider = ({ children }) => {
         if (user && !error) {
           setUser(user);
           setSession(user);
+        } else {
+          // DEVELOPMENT OVERRIDE: Use dummy user from localStorage if present
+          const devUser = localStorage.getItem('devUser');
+          if (devUser) {
+            const parsed = JSON.parse(devUser);
+            setUser({
+              id: 'dev-user',
+              email: parsed.email || 'dev@local.test',
+              user_metadata: { fullName: parsed.fullName || 'Developer' }
+            });
+            setSession({ user: { email: parsed.email || 'dev@local.test' } });
+          }
         }
       } catch (error) {
         console.error('Error getting initial session:', error);
@@ -38,15 +50,25 @@ export const AuthProvider = ({ children }) => {
     const { data: { subscription } } = authService.onAuthStateChange(
       async (event, session) => {
         console.log('Auth state changed:', event, session);
-        
         if (session?.user) {
           setUser(session.user);
           setSession(session);
         } else {
-          setUser(null);
-          setSession(null);
+          // DEVELOPMENT OVERRIDE: Use dummy user from localStorage if present
+          const devUser = localStorage.getItem('devUser');
+          if (devUser) {
+            const parsed = JSON.parse(devUser);
+            setUser({
+              id: 'dev-user',
+              email: parsed.email || 'dev@local.test',
+              user_metadata: { fullName: parsed.fullName || 'Developer' }
+            });
+            setSession({ user: { email: parsed.email || 'dev@local.test' } });
+          } else {
+            setUser(null);
+            setSession(null);
+          }
         }
-        
         setLoading(false);
       }
     );
