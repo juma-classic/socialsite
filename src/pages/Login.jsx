@@ -103,10 +103,15 @@ const Login = () => {
           });
         }
       } else {
-        setSuccess('Login successful! Redirecting...');
-        setTimeout(() => {
-          navigate('/app', { replace: true });
-        }, 500);
+        const { error } = await authService.signIn(formData.email, formData.password);
+        if (error) {
+          setError(error.message);
+        } else {
+          setSuccess('Login successful! Redirecting...');
+          setTimeout(() => {
+            navigate('/app', { replace: true });
+          }, 500);
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
