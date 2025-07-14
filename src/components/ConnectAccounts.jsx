@@ -40,7 +40,7 @@ function ConnectAccounts({ onAccountConnected }) {
 
   // Load connected accounts on mount
   useEffect(() => {
-    loadConnectedAccoun
+    loadConnectedAccounts();
   }, []);
 
   const loadConnectedAccounts = async () => {
