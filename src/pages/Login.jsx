@@ -24,9 +24,10 @@ const Login = () => {
   const socialEmojis = ['📱', '💬', '📊', '🚀', '⚡', '🎯', '💡', '🔔', '📈', '🌟', '💫', '🎨', '📸', '🎬', '🎪', '🎭', '🎊', '🎉', '💝', '🎁', '🔥', '✨', '🌈', '🦄', '🤖', '👥', '🌍', '💻', '📺', '📱'];
 
   useEffect(() => {
-    // Check if user is already logged in
-    if (user) {
-      navigate('/dashboard');
+    // DEVELOPMENT OVERRIDE: Check for devUser in localStorage
+    const devUser = localStorage.getItem('devUser');
+    if (user || devUser) {
+      navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
 
@@ -101,9 +102,11 @@ const Login = () => {
       } else {
         // DEVELOPMENT OVERRIDE: Allow any email/password to log in
         setSuccess('Login successful! Redirecting...');
+        // Set a dummy user in localStorage to simulate login for useAuth
+        localStorage.setItem('devUser', JSON.stringify({ email: formData.email }));
         setTimeout(() => {
-          navigate('/dashboard');
-        }, 1000);
+          navigate('/dashboard', { replace: true });
+        }, 500);
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
