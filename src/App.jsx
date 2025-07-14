@@ -18,11 +18,12 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          {/* Public route */}
+          {/* Login is now the default landing page */}
+          <Route path="/" element={<Login />} />
           <Route path="/login" element={<Login />} />
-          
-          {/* Protected routes */}
-          <Route path="/*" element={
+
+          {/* Protected routes moved to /app/* */}
+          <Route path="/app/*" element={
             <ProtectedRoute>
               <AppLayout />
             </ProtectedRoute>
@@ -167,11 +168,11 @@ function AppLayout() {
         <main className="flex-1 overflow-y-auto bg-gray-50">
           <Routes>
             <Route path="/" element={<Dashboard metrics={metrics} loading={loading} error={error} />} />
-            <Route path="/posts" element={<Posts />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/analytics" element={<Analytics metrics={metrics} loading={loading} error={error} />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="posts" element={<Posts />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="analytics" element={<Analytics metrics={metrics} loading={loading} error={error} />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
           </Routes>
         </main>
       </div>
